@@ -7,24 +7,13 @@ const { signToken } = require('../utils/auth');
 const resolvers = {
     Query: {
         // Your query resolvers here
-        user: async (parent, { userId, username }, { user }) => {
-            if (!userId && !username && user) {
-              userId = user._id;
-            }
-      
-            if (!userId && !username) {
-              throw new Error('Please provide either an ID or a username');
-            }
-      
-            const foundUser = await User.findOne({
-              $or: [{ _id: userId }, { username }],
-            });
-      
-            if (!foundUser) {
-              throw new Error('Cannot find a user with this id or username');
-            }
-      
-            return foundUser;
+        me: async (parent, args, { user }) => {
+            if (user) {
+                const userData = await User.findOne({ _id: user._id });
+        
+                return userData;
+              }
+            throw new Error('Not logged in')
           },
     },
     Mutation: {
@@ -98,7 +87,7 @@ const resolvers = {
                 {
                     id: user._id,
                 },
-                'your_secret_key', // Replace with actual secret key
+                'mysecretsshhhhh',
                 { expiresIn: '1h' }
             );
 
