@@ -43,7 +43,7 @@ const resolvers = {
             res.json({ token, user });
           },
         // remove a book from `savedBooks`
-        deletebook: async (parent, { bookId }, { user }) => {
+        deleteBook: async (parent, { bookId }, { user }) => {
             const updatedUser = await User.findOneAndUpdate(
               { _id: user._id },
               { $pull: { savedBooks: { bookId: bookId } } },
