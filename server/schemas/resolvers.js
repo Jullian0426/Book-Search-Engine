@@ -3,14 +3,18 @@ const { User } = require('../models');
 
 // import sign token function from auth
 const { signToken } = require('../utils/auth');
+const bcrypt = require('bcrypt')
 
 const resolvers = {
     Query: {
         // Your query resolvers here
         me: async (parent, args, { user }) => {
             if (user) {
-                const userData = await User.findOne({ _id: user._id });
+                const userData = await User.findOne({ _id: user._id })
+                    .select('-__v -password')
+                    .populate('savedBooks');
         
+                console.log('userData in me resolver:', userData);
                 return userData;
               }
             throw new Error('Not logged in')
@@ -29,7 +33,10 @@ const resolvers = {
                 throw new Error('Something is wrong!');
             }
             const token = signToken(user);
-            res.json({ token, user });
+            return {
+                token,
+                user,
+            };
           },
         // remove a book from `savedBooks`
         deleteBook: async (parent, { bookId }, { user }) => {
@@ -45,6 +52,7 @@ const resolvers = {
           },
         // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
         saveBook: async (parent, { book }, { user }) => {
+            console.log('Context in saveBook resolver:', user);
             if (!user) {
                 throw new Error('You must be authenticated to save a book');
             }
@@ -83,13 +91,7 @@ const resolvers = {
             }
 
             // Create and sign a JWT token
-            const token = jwt.sign(
-                {
-                    id: user._id,
-                },
-                'mysecretsshhhhh',
-                { expiresIn: '1h' }
-            );
+            const token = signToken(user);
 
             return {
                 token,
