@@ -22,7 +22,7 @@ const resolvers = {
     },
     Mutation: {
         // create a user, sign a token, and send it back (to client/src/components/SignUpForm.js)
-        createUser: async (parent, { username, email, password }) => {
+        addUser: async (parent, { username, email, password }) => {
             const user = await User.create({
                 username,
                 email,
